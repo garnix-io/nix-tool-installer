@@ -23,6 +23,14 @@
             testCommand = "hello";
           };
         };
+        checks = {
+          shellCheck = pkgs.runCommand "shellcheck"
+            { nativeBuildInputs = [ pkgs.shellcheck ]; }
+            ''
+              shellcheck ${packages.test-script}
+              touch $out
+            '';
+        };
         devShells = {
           default = pkgs.mkShell {
             buildInputs = [

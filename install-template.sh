@@ -19,6 +19,7 @@ install_nix () {
 
   "$TMP/install.sh" --nix-extra-conf-file "$TMP/nix-extra-config" --daemon --yes
 
+  # shellcheck source=/dev/null
   source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 }
 
@@ -27,7 +28,7 @@ if test_nix_installation; then
   nix --version
 else
   echo \'@@toolName@@\' depends on nix, but it seems that you don\'t have a nix installation.
-  read -p 'Should I install nix now? [y/n] ' SHOULD_INSTALL_NIX
+  read -rp 'Should I install nix now? [y/n] ' SHOULD_INSTALL_NIX
   if test "$SHOULD_INSTALL_NIX" != y; then
     echo Cancelling installation.
     exit 1
