@@ -14,7 +14,7 @@ install_nix () {
   echo "extra-substituters = https://cache.garnix.io" >> $tmp/nix-extra-config
   echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" >> $tmp/nix-extra-config
 
-  curl -L https://nixos.org/nix/install -o $tmp/install.sh
+  curl -L https://releases.nixos.org/nix/nix-2.17.1/install -o $tmp/install.sh
   chmod u+x $tmp/install.sh
 
   $tmp/install.sh --nix-extra-conf-file $tmp/nix-extra-config --daemon --yes
