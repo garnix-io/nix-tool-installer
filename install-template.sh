@@ -10,16 +10,16 @@ test_nix_installation () {
 }
 
 install_nix () {
-  tmp=$(mktemp -d)
-  echo "extra-substituters = https://cache.garnix.io" >> $tmp/nix-extra-config
-  echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" >> $tmp/nix-extra-config
+  TMP=$(mktemp -d)
+  echo "extra-substituters = https://cache.garnix.io" >> "$TMP/nix-extra-config"
+  echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" >> "$TMP/nix-extra-config"
 
-  curl -L https://releases.nixos.org/nix/nix-2.17.1/install -o $tmp/install.sh
-  chmod u+x $tmp/install.sh
+  curl -L https://releases.nixos.org/nix/nix-2.17.1/install -o "$TMP/install.sh"
+  chmod u+x "$TMP/install.sh"
 
-  $tmp/install.sh --nix-extra-conf-file $tmp/nix-extra-config --daemon --yes
+  "$TMP/install.sh" --nix-extra-conf-file "$TMP/nix-extra-config" --daemon --yes
 
-  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 }
 
 if test_nix_installation; then
@@ -27,10 +27,10 @@ if test_nix_installation; then
   nix --version
 else
   echo \'@@toolName@@\' depends on nix, but it seems that you don\'t have a nix installation.
-  read -p 'Should I install nix now? [y/n] ' shouldInstallNix
-  if [[ $shouldInstallNix != 'y' ]]; then
+  read -p 'Should I install nix now? [y/n] ' SHOULD_INSTALL_NIX
+  if test "$SHOULD_INSTALL_NIX" != y; then
     echo Cancelling installation.
-    exit 0
+    exit 1
   fi
   install_nix
 fi
@@ -41,9 +41,9 @@ nix --version
 echo TODO: testing binary cache...
 # is there a good way to test whether a binary cache is configured and available?
 
-echo installing \'@@toolName@@\'...
-nix --extra-experimental-features 'nix-command flakes' profile install -L @@flakeLocation@@
-echo testing \'@@toolName@@\' installation...
+echo "installing '@@toolName@@'..."
+nix --extra-experimental-features 'nix-command flakes' profile install -L "@@flakeLocation@@"
+echo "testing '@@toolName@@' installation..."
 @@testCommand@@
 
-echo Success! \'@@toolName@@\' is now installed.
+echo "Success! '@@toolName@@' is now installed."
