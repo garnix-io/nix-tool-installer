@@ -19,7 +19,7 @@ You can create an install script like this:
         packages = {
           default = nix-tool-installer.lib.${system}.mkInstallScript {
             toolName = "hello";
-            flakeLocation = "github:nixos/nixpkgs#hello";
+            flakeLocation = "github:nixos/nixpkgs/f098c1634d7bc427d9fe51e5f536c8aed65c1991#hello";
             testCommand = "hello";
           };
         };
