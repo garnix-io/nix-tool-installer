@@ -41,3 +41,18 @@ Then you can e.g. host the install script on `https://example.com/install.sh` an
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://example.com/install.sh | bash
 ```
+
+## Development
+
+You can run the script in a ubuntu VM to test it out:
+
+```bash
+nix develop -c $SHELL
+just test-run-in-vagrant
+```
+
+You can tear down the VM with:
+
+```bash
+just test-teardown
+```
