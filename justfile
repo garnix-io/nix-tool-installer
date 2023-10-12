@@ -1,4 +1,4 @@
-test-run-in-vagrant: build-test-script
+test-run-in-vagrant: build-test-script test-setup
   vagrant ssh -c "echo ; echo ; echo ; /vagrant/test-script"
 
 build-test-script:
