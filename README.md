@@ -39,7 +39,7 @@ This will symlink the generated script in `result`.
 Then you can e.g. host the install script on `https://example.com/install.sh` and have users run it with:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf https://example.com/install.sh | bash
+curl --proto '=https' --tlsv1.2 -sSf https://example.com/install.sh | sh
 ```
 
 ## Development
@@ -50,6 +50,8 @@ You can run the script in a ubuntu VM to test it out:
 nix develop -c $SHELL
 just test-run-in-vagrant
 ```
+
+The script will ask you for a sudo password, which is `vagrant`.
 
 You can tear down the VM with:
 

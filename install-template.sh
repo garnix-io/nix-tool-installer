@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # This is the install script for '@@toolName@@'.
 
-set -euo pipefail
+set -eu
 
 test_nix_installation () {
   which nix > /dev/null
@@ -20,7 +20,7 @@ install_nix () {
   "$TMP/install.sh" --nix-extra-conf-file "$TMP/nix-extra-config" --daemon --yes
 
   # shellcheck source=/dev/null
-  source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 }
 
 if test_nix_installation; then
@@ -28,7 +28,8 @@ if test_nix_installation; then
   nix --version
 else
   echo \'@@toolName@@\' depends on nix, but it seems that you don\'t have a nix installation.
-  read -rp 'Should I install nix now? [y/n] ' SHOULD_INSTALL_NIX
+  echo 'Should I install nix now? [y/n] '
+  read -r SHOULD_INSTALL_NIX
   if test "$SHOULD_INSTALL_NIX" != y; then
     echo Cancelling installation.
     exit 1
