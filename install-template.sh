@@ -5,9 +5,8 @@
 set -euo pipefail
 
 test_nix_installation () {
-  which nix > /dev/null &&
-  nix --version > /dev/null &&
-  true
+  which nix > /dev/null
+  nix --version > /dev/null
 }
 
 install_nix () {
