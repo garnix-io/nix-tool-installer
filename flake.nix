@@ -42,6 +42,7 @@
         devShells = {
           default = pkgs.mkShell {
             buildInputs = [
+              pkgs.shellcheck
               pkgs.vagrant
             ];
           };
