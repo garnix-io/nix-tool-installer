@@ -7,6 +7,8 @@
       rec {
         # { toolName: string, flakeLocation: string, testCommand: string } -> derivation
         # The derivation builds just one file which is the install script.
+        # So you can copy the script to a web server and people can install nix and the given tool with:
+        # $ curl -L https://example.com/install.sh | bash
         lib = { toolName, flakeLocation, testCommand }:
           pkgs.writeScript
             "installer"
