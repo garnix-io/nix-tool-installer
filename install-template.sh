@@ -5,8 +5,7 @@
 set -eu
 
 test_nix_installation () {
-  which nix > /dev/null
-  nix --version > /dev/null
+  nix --version 1> /dev/null 2> /dev/null
 }
 
 install_nix () {
@@ -28,17 +27,17 @@ if test_nix_installation; then
   nix --version
 else
   echo \'@@toolName@@\' depends on nix, but it seems that you don\'t have a nix installation.
-  echo 'Should I install nix now? [y/n] '
+  printf "Should I install nix now? [y/n] "
   read -r SHOULD_INSTALL_NIX
   if test "$SHOULD_INSTALL_NIX" != y; then
     echo Cancelling installation.
     exit 1
   fi
   install_nix
+  echo nix is now installed:
+  nix --version
 fi
 test_nix_installation
-echo nix is now installed:
-nix --version
 
 echo TODO: testing binary cache...
 # is there a good way to test whether a binary cache is configured and available?
