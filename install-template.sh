@@ -18,10 +18,10 @@ install_nix () {
 
   "$TMP/install.sh" --nix-extra-conf-file "$TMP/nix-extra-config" --daemon --yes
 
-  set +e
+  set +eu
   # shellcheck source=/dev/null
   . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-  set -e
+  set -eu
 }
 
 if test_nix_installation; then
