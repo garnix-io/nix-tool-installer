@@ -39,7 +39,7 @@ This will symlink the generated script in `result`.
 Then you can e.g. host the install script on `https://example.com/install.sh` and have users run it with:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf https://example.com/install.sh | sh
+sh <(curl --proto '=https' --tlsv1.2 -sSf https://example.com/install.sh)
 ```
 
 ## Development
