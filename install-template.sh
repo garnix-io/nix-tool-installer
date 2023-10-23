@@ -29,7 +29,7 @@ if test_nix_installation; then
   nix --version
 else
   echo \'@@toolName@@\' depends on nix, but it seems that you don\'t have a nix installation.
-  echo This installer will run the default nix installer (version 2.17.1) for you.
+  echo This installer will run the default nix installer \(version 2.17.1\) for you.
   echo That installer will ask for your admin password to install nix.
   echo For more information, see: https://nixos.org/download
   echo
