@@ -32,8 +32,8 @@ test_cache_configured () {
 }
 
 configure_cache () {
-  echo extra-substituters = https://cache.garnix.io | sudo tee --append /etc/nix/nix.conf > /dev/null
-  echo extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= | sudo tee --append /etc/nix/nix.conf > /dev/null
+  echo extra-substituters = https://cache.garnix.io | sudo tee -a /etc/nix/nix.conf > /dev/null
+  echo extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= | sudo tee -a /etc/nix/nix.conf > /dev/null
   echo restarting nix-daemon...
   if test "$(uname)" = "Linux" ; then
     sudo systemctl restart nix-daemon.service
