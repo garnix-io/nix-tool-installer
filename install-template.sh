@@ -24,6 +24,32 @@ install_nix () {
   set -eu
 }
 
+test_cache_configured () {
+  nixConfig=$(nix --extra-experimental-features 'nix-command flakes' show-config) &&
+  (echo "$nixConfig" | grep --quiet "^substituters.*cache\.garnix\.io") &&
+  (echo "$nixConfig" | grep --quiet "^trusted-public-keys.*cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=") &&
+  true
+}
+
+configure_cache () {
+  echo extra-substituters = https://cache.garnix.io | sudo tee --append /etc/nix/nix.conf > /dev/null
+  echo extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= | sudo tee --append /etc/nix/nix.conf > /dev/null
+  echo restarting nix-daemon...
+  if test "$(uname)" = "Linux" ; then
+    sudo systemctl restart nix-daemon.service
+  elif test "$(uname)" = "Darwin" ; then
+    sudo launchctl kickstart -k system/org.nixos.nix-daemon
+  else
+    echo "Unknown system: $(uname)"
+    echo Cancelling installation.
+    exit 1
+  fi
+}
+
+echo
+echo NIX INSTALLATION
+echo ================
+
 if test_nix_installation; then
   echo Hooray, nix is already installed:
   nix --version
@@ -40,13 +66,31 @@ else
     exit 1
   fi
   install_nix
+  test_nix_installation || (echo "Failed to install nix, cancelling installation." && exit 1)
   echo nix is now installed:
   nix --version
 fi
-test_nix_installation
 
-echo TODO: testing binary cache...
-# is there a good way to test whether a binary cache is configured and available?
+echo
+echo BINARY CACHE CONFIGURATION
+echo ==========================
+
+if test_cache_configured; then
+  echo Hooray, the garnix cache is configured.
+else
+  echo For \'@@toolName@@\' to work well, it is recommended that you add the
+  echo garnix.io binary cache to your nix configuration. But the cache
+  echo configuration cannot be found.
+  printf "Should I add the garnix.io binary cache to /etc/nix/nix.conf now (requires sudo)? [y/n] "
+  read -r SHOULD_CONFIGURE_CACHE
+  if test "$SHOULD_CONFIGURE_CACHE" != y; then
+    echo Cancelling installation.
+    exit 1
+  fi
+  configure_cache
+  test_cache_configured || (echo "Failed to configure the garnix cache, cancelling installation." && exit 1)
+  echo The garnix cache is now configured.
+fi
 
 echo "installing '@@toolName@@'..."
 nix --extra-experimental-features 'nix-command flakes' profile install -L "@@flakeLocation@@"
