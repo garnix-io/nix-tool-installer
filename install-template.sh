@@ -68,8 +68,9 @@ Welcome to the '@@toolName@@' installer!
 '@@toolName@@' depends on nix, but it seems that you don't have a nix
 installation. This installer will install nix for you. It uses the
 'nix-installer' by Determinate Systems. For more information, see
-https://github.com/DeterminateSystems/nix-installer. That installer
-will ask for your admin password to install nix.
+https://github.com/DeterminateSystems/nix-installer.
+
+This installer will ask for your admin password to install nix.
 
 If in the future you want to uninstall Nix, use:
 
