@@ -10,13 +10,15 @@ test_nix_installation () {
 
 install_nix () {
   TMP=$(mktemp -d)
-  echo "extra-substituters = https://cache.garnix.io" >> "$TMP/nix-extra-config"
-  echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" >> "$TMP/nix-extra-config"
 
-  curl --proto '=https' --tlsv1.2 -sSfL https://releases.nixos.org/nix/nix-2.17.1/install -o "$TMP/install.sh"
+  curl --proto '=https' --tlsv1.2 -sSfL https://install.determinate.systems/nix/tag/v0.14.0 -o "$TMP/install.sh"
   chmod u+x "$TMP/install.sh"
 
-  "$TMP/install.sh" --nix-extra-conf-file "$TMP/nix-extra-config" --daemon --yes
+  "$TMP/install.sh" \
+    install \
+    --no-confirm \
+    --extra-conf "extra-substituters = https://cache.garnix.io" \
+    --extra-conf "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
 
   set +eu
   # shellcheck source=/dev/null
