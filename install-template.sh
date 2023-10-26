@@ -80,9 +80,10 @@ echo ==========================
 if test_cache_configured; then
   echo Hooray, the garnix cache is configured.
 else
-  echo For \'@@toolName@@\' to work well, it is recommended that you add the
-  echo garnix.io binary cache to your nix configuration. But the cache
-  echo configuration cannot be found.
+  echo For \'@@toolName@@\' to work well, nix needs to use the garnix.io binary
+  echo cache. But the cache configuration cannot be found. This
+  echo installer will modify /etc/nix/nix.conf to add the garnix.io binary cache.
+  echo
   printf "Should I add the garnix.io binary cache to /etc/nix/nix.conf now (requires sudo)? [y/n] "
   read -r SHOULD_CONFIGURE_CACHE
   if test "$SHOULD_CONFIGURE_CACHE" != y; then
