@@ -35,12 +35,17 @@ configure_cache () {
   echo extra-substituters = https://cache.garnix.io | sudo tee -a /etc/nix/nix.conf > /dev/null
   echo extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= | sudo tee -a /etc/nix/nix.conf > /dev/null
 
-  echo trying to restart the nix-daemon...
   # This ignores errors, for single-user installations.
   if test "$(uname)" = "Linux" ; then
-    sudo systemctl restart nix-daemon.service || true
+    if grep nixbld /etc/group > /dev/null ; then
+      echo restarting the nix-daemon...
+      sudo systemctl restart nix-daemon.service
+    fi
   elif test "$(uname)" = "Darwin" ; then
-    sudo launchctl kickstart -k system/org.nixos.nix-daemon || true
+    if dscl . list /Groups | grep nixbld > /dev/null ; then
+      echo restarting the nix-daemon...
+      sudo launchctl kickstart -k system/org.nixos.nix-daemon
+    fi
   else
     echo "Unknown system: $(uname)"
     echo Cancelling installation.
