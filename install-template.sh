@@ -71,9 +71,7 @@ installation. This installer will install nix for you. It uses the
 https://github.com/DeterminateSystems/nix-installer. That installer
 will ask for your admin password to install nix.
 
-A note on uninstalling: One of the advantages of the Determinate Systems
-'nix-installer' is that it comes with an easy way to uninstall nix (and
-'@@toolName@@'):
+If in the future you want to uninstall Nix, use:
 
 $ /nix/nix-installer uninstall
 
