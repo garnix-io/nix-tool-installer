@@ -3,6 +3,7 @@ test-run-in-vagrant: test-setup
 
   set -eu
 
+  nix build -L .#exampleInstallerFiles
   nix run -L .#testFileServer &
   SERVER_PID=$!
   trap 'kill $SERVER_PID' SIGINT SIGTERM EXIT
