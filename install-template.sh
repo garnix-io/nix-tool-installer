@@ -4,6 +4,8 @@
 
 set -eu
 
+@@additionalPrefix@@
+
 test_nix_installation () {
   nix --version 1> /dev/null 2> /dev/null
 }
@@ -11,10 +13,11 @@ test_nix_installation () {
 install_nix () {
   TMP=$(mktemp -d)
 
-  curl --proto '=https' --tlsv1.2 -sSfL https://install.determinate.systems/nix/tag/v0.14.0 -o "$TMP/install.sh"
-  chmod u+x "$TMP/install.sh"
+  curl @@forceHttpsOption@@ --tlsv1.2 -sSfL @@baseUrl@@/nix-installer.sh -o "$TMP/nix-installer.sh"
+  chmod u+x "$TMP/nix-installer.sh"
 
-  "$TMP/install.sh" \
+  export NIX_INSTALLER_BINARY_ROOT=@@baseUrl@@
+  "$TMP/nix-installer.sh" \
     install \
     --no-confirm \
     --extra-conf "extra-substituters = https://cache.garnix.io" \
@@ -59,11 +62,23 @@ if test_nix_installation; then
   echo Hooray, nix is already installed:
   nix --version
 else
-  echo \'@@toolName@@\' depends on nix, but it seems that you don\'t have a nix installation.
-  echo This installer will run the default nix installer \(version 2.17.1\) for you.
-  echo That installer will ask for your admin password to install nix.
-  echo For more information, see: https://nixos.org/download
-  echo
+  cat << EOF
+Welcome to the '@@toolName@@' installer!
+
+'@@toolName@@' depends on nix, but it seems that you don't have a nix
+installation. This installer will install nix for you. It uses the
+'nix-installer' by Determinate Systems. For more information, see
+https://github.com/DeterminateSystems/nix-installer. That installer
+will ask for your admin password to install nix.
+
+A note on uninstalling: One of the advantages of the Determinate Systems
+'nix-installer' is that it comes with an easy way to uninstall nix (and
+'@@toolName@@'):
+
+$ /nix/nix-installer uninstall
+
+EOF
+
   printf "Should I install nix now? [y/n] "
   read -r SHOULD_INSTALL_NIX
   if test "$SHOULD_INSTALL_NIX" != y; then
