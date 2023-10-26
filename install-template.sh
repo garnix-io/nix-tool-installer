@@ -19,7 +19,6 @@ install_nix () {
   export NIX_INSTALLER_BINARY_ROOT=@@baseUrl@@
   "$TMP/nix-installer.sh" \
     install \
-    --no-confirm \
     --extra-conf "extra-substituters = https://cache.garnix.io" \
     --extra-conf "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" \
     --diagnostic-endpoint=""
