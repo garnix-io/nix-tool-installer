@@ -4,19 +4,24 @@
 
 set -eu
 
+@@additionalPrefix@@
+
 test_nix_installation () {
   nix --version 1> /dev/null 2> /dev/null
 }
 
 install_nix () {
   TMP=$(mktemp -d)
-  echo "extra-substituters = https://cache.garnix.io" >> "$TMP/nix-extra-config"
-  echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" >> "$TMP/nix-extra-config"
 
-  curl --proto '=https' --tlsv1.2 -sSfL https://releases.nixos.org/nix/nix-2.17.1/install -o "$TMP/install.sh"
-  chmod u+x "$TMP/install.sh"
+  curl @@forceHttpsOption@@ --tlsv1.2 -sSfL @@baseUrl@@/nix-installer.sh -o "$TMP/nix-installer.sh"
+  chmod u+x "$TMP/nix-installer.sh"
 
-  "$TMP/install.sh" --nix-extra-conf-file "$TMP/nix-extra-config" --daemon --yes
+  export NIX_INSTALLER_BINARY_ROOT=@@baseUrl@@
+  "$TMP/nix-installer.sh" \
+    install \
+    --extra-conf "extra-substituters = https://cache.garnix.io" \
+    --extra-conf "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" \
+    --diagnostic-endpoint=""
 
   set +eu
   # shellcheck source=/dev/null
@@ -56,11 +61,22 @@ if test_nix_installation; then
   echo Hooray, nix is already installed:
   nix --version
 else
-  echo \'@@toolName@@\' depends on nix, but it seems that you don\'t have a nix installation.
-  echo This installer will run the default nix installer \(version 2.17.1\) for you.
-  echo That installer will ask for your admin password to install nix.
-  echo For more information, see: https://nixos.org/download
-  echo
+  cat << EOF
+Welcome to the '@@toolName@@' installer!
+
+'@@toolName@@' depends on nix, but it seems that you don't have a nix
+installation. This installer will install nix for you. It uses the
+'nix-installer' by Determinate Systems. For more information, see
+https://github.com/DeterminateSystems/nix-installer.
+
+This installer will ask for your admin password to install nix.
+
+If in the future you want to uninstall Nix, use:
+
+$ /nix/nix-installer uninstall
+
+EOF
+
   printf "Should I install nix now? [y/n] "
   read -r SHOULD_INSTALL_NIX
   if test "$SHOULD_INSTALL_NIX" != y; then
