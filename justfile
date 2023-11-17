@@ -1,4 +1,4 @@
-test-run-in-vagrant: test-setup
+test-run-in-vm: test-setup
   #!/usr/bin/env bash
 
   set -eu
@@ -7,10 +7,25 @@ test-run-in-vagrant: test-setup
   nix run -L .#testFileServer &
   SERVER_PID=$!
   trap 'kill $SERVER_PID' SIGINT SIGTERM EXIT
-  vagrant ssh -c "echo ; echo ; echo ; sh <(curl --tlsv1.2 -sSf http://192.168.56.1:8000/install.sh)"
+  while ! nc -z localhost 8000; do
+    sleep 0.1
+  done
+  nix run .#sshVm -- 'bash -c "echo ; echo ; echo ; sh <(curl --tlsv1.2 -sSf http://10.0.2.2:8000/install.sh)"'
+
+test-ssh: test-setup
+  nix run .#sshVm
 
 test-setup:
-  vagrant up
+  #!/usr/bin/env bash
+
+  set -eu
+
+  if lsof -i tcp:2222; then
+    echo Port 2222 is already in use...
+    echo Assuming server is already running
+    exit 0
+  fi
+  nix run .#bootVm
 
 test-teardown:
-  vagrant destroy --force
+  kill $(lsof -ti tcp:2222)
