@@ -10,7 +10,7 @@ test-run-in-vm: test-setup
   while ! nc -z localhost 8000; do
     sleep 0.1
   done
-  nix run .#sshVm -- 'bash -c "echo ; echo ; echo ; sh <(curl --tlsv1.2 -sSf http://10.0.2.2:8000/install.sh)"'
+  nix run .#sshVm -- "echo ; echo ; echo ; sh <(curl --tlsv1.2 -sSf http://10.0.2.2:8000/install.sh)"
 
 test-ssh: test-setup
   nix run .#sshVm
