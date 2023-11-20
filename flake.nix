@@ -122,7 +122,7 @@
                 builtins.toString (pkgs.writeScript "boot-vm" ''
                   ROOT_IMG=$(mktemp)
                   CLOUD_INIT_IMG=$(mktemp)
-                  ${pkgs.qemu}/bin/qemu-img create -o backing_file=${ubuntu},backing_fmt=qcow2 -f qcow2 $ROOT_IMG
+                  ${pkgs.qemu}/bin/qemu-img create -o backing_file=${ubuntu},backing_fmt=qcow2 -f qcow2 $ROOT_IMG 3G
                   cp ${cloud-init-img} $CLOUD_INIT_IMG
                   chmod +w $CLOUD_INIT_IMG
                   ${pkgs.qemu}/bin/qemu-system-x86_64 \
