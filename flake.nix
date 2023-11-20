@@ -136,9 +136,9 @@
                     -device e1000,netdev=net0 \
                     -netdev user,id=net0,hostfwd=tcp::2222-:22 \
                     &
-                    # Wait for the runcmd to call us back to let us know that we are fully booted.
-                    # (See runcmd in the flake file under cloudcfg)
-                    nc -l 2223
+                  # Wait for the runcmd to call us back to let us know that we are fully booted.
+                  # (See runcmd in the flake file under cloudcfg)
+                  nc -l 2223
                 '');
           };
           sshVm = {
