@@ -10,10 +10,10 @@ test-run-in-vm: test-setup
   while ! nc -z localhost 8000; do
     sleep 0.1
   done
-  nix run .#sshVm -- "echo ; echo ; echo ; sh <(curl --tlsv1.2 -sSf http://10.0.2.2:8000/install.sh)"
+  nix run -L .#sshVm -- "echo ; echo ; echo ; sh <(curl --tlsv1.2 -sSf http://10.0.2.2:8000/install.sh)"
 
 test-ssh: test-setup
-  nix run .#sshVm
+  nix run -L .#sshVm
 
 test-setup:
   #!/usr/bin/env bash
@@ -25,7 +25,7 @@ test-setup:
     echo Assuming server is already running
     exit 0
   fi
-  nix run .#bootVm
+  nix run -L .#bootVm
 
 test-teardown:
   kill $(lsof -ti tcp:2222)
