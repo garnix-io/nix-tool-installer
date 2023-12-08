@@ -1,7 +1,7 @@
 {
   description = "Install scripts for nix-based tools";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/23.05";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/23.11";
   inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
   outputs = { self, nixpkgs, flake-utils, treefmt-nix }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
