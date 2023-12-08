@@ -2,9 +2,30 @@
   description = "Install scripts for nix-based tools";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/23.05";
-  outputs = { self, nixpkgs, flake-utils }:
+  inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
+  outputs = { self, nixpkgs, flake-utils, treefmt-nix }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
-      let pkgs = nixpkgs.legacyPackages.${system}; in
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        treefmt-config = {
+          projectRootFile = "flake.nix";
+          programs = {
+            nixpkgs-fmt.enable = true;
+            shellcheck.enable = true;
+            shfmt.enable = true;
+            statix = {
+              enable = true;
+              disabled-lints = [
+                "empty_pattern"
+                "eta_reduction"
+                "faster_groupby"
+                "faster_zipattrswith"
+              ];
+            };
+          };
+        };
+        treefmtWrapper = treefmt-nix.lib.mkWrapper pkgs treefmt-config;
+      in
       rec {
         # { toolName: string, baseUrl: string, flakeLocation: string, testCommand: string } -> derivation
         #
@@ -164,13 +185,16 @@
               shellcheck ${packages.exampleInstallerFiles}/install.sh
               touch $out
             '';
+          treefmt = (treefmt-nix.lib.evalModule pkgs treefmt-config).config.build.check self;
         };
+        formatter = treefmtWrapper;
         devShells = {
           default = pkgs.mkShell {
             buildInputs = [
               pkgs.just
               pkgs.lsof
               pkgs.shellcheck
+              treefmtWrapper
             ];
           };
         };
