@@ -6,11 +6,11 @@ set -eu
 
 @@additionalPrefix@@
 
-test_nix_installation () {
-  nix --version 1> /dev/null 2> /dev/null
+test_nix_installation() {
+  nix --version 1>/dev/null 2>/dev/null
 }
 
-install_nix () {
+install_nix() {
   TMP=$(mktemp -d)
 
   curl @@forceHttpsOption@@ --tlsv1.2 -sSfL @@baseUrl@@/nix-installer.sh -o "$TMP/nix-installer.sh"
@@ -29,22 +29,22 @@ install_nix () {
   set -eu
 }
 
-test_cache_configured () {
+test_cache_configured() {
   nixConfig=$(nix --extra-experimental-features 'nix-command flakes' show-config) &&
-  (echo "$nixConfig" | grep --quiet "^substituters.*cache\.garnix\.io") &&
-  (echo "$nixConfig" | grep --quiet "^trusted-public-keys.*cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=") &&
-  true
+    (echo "$nixConfig" | grep --quiet "^substituters.*cache\.garnix\.io") &&
+    (echo "$nixConfig" | grep --quiet "^trusted-public-keys.*cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=") &&
+    true
 }
 
-configure_cache () {
-  echo extra-substituters = https://cache.garnix.io | sudo tee -a /etc/nix/nix.conf > /dev/null
-  echo extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= | sudo tee -a /etc/nix/nix.conf > /dev/null
+configure_cache() {
+  echo extra-substituters = https://cache.garnix.io | sudo tee -a /etc/nix/nix.conf >/dev/null
+  echo extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= | sudo tee -a /etc/nix/nix.conf >/dev/null
 
   echo trying to restart the nix-daemon...
   # This ignores errors, for single-user installations.
-  if test "$(uname)" = "Linux" ; then
+  if test "$(uname)" = "Linux"; then
     sudo systemctl restart nix-daemon.service || true
-  elif test "$(uname)" = "Darwin" ; then
+  elif test "$(uname)" = "Darwin"; then
     sudo launchctl kickstart -k system/org.nixos.nix-daemon || true
   else
     echo "Unknown system: $(uname)"
@@ -61,7 +61,7 @@ if test_nix_installation; then
   echo Hooray, nix is already installed:
   nix --version
 else
-  cat << EOF
+  cat <<EOF
 Welcome to the '@@toolName@@' installer!
 
 '@@toolName@@' depends on nix, but it seems that you don't have a nix
@@ -95,7 +95,7 @@ echo ==========================
 
 if test_cache_configured; then
   echo Hooray, the garnix cache is configured.
-elif true >> /etc/nix/nix.conf; then
+elif true >>/etc/nix/nix.conf; then
   echo For \'@@toolName@@\' to work well, nix needs to use the garnix.io binary
   echo cache. But the cache configuration cannot be found. This
   echo installer will modify /etc/nix/nix.conf to add the garnix.io binary cache.
