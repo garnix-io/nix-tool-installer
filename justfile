@@ -15,9 +15,8 @@ test-run-in-vm: test-setup
 test-ssh: test-setup
   nix run -L .#sshVm
 
-test-setup:
+test-setup os="linux":
   #!/usr/bin/env bash
-
   set -eu
 
   if lsof -i tcp:2222; then
@@ -25,7 +24,15 @@ test-setup:
     echo Assuming server is already running
     exit 0
   fi
-  nix run -L .#bootVm
+
+  if [[ "{{ os }}" == "linux" ]]; then
+    nix run -L .#bootLinuxVm
+  elif [[ "{{ os }}" == "darwin" ]]; then
+    nix run -L .#bootDarwinVm
+  else
+    echo "Unknown os: {{ os }}"
+    exit 1
+  fi
 
 test-teardown:
   kill $(lsof -ti tcp:2222)

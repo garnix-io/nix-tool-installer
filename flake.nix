@@ -88,7 +88,55 @@
                 exec ${pkgs.python3}/bin/python3 -m http.server 2> /dev/null
               '');
           };
-          bootVm = {
+          bootDarwinVm =
+            let
+              bootVMScript = pkgs.writeShellScriptBin "boot-vm" ''
+                set -eu
+                export TMPDIR=/tmp
+                ALLOCATED_RAM="8192" # MiB
+                CPU_SOCKETS="1"
+                CPU_CORES="4"
+                CPU_THREADS="4"
+
+                IMAGES_PATH="macos"
+                test -f $IMAGES_PATH/mac_hdd_ng.img || (echo "macos images not found" && exit 1)
+
+                # shellcheck disable=SC2054
+                args=(
+                  -enable-kvm -m "$ALLOCATED_RAM" -cpu Penryn,kvm=on,vendor=GenuineIntel,+invtsc,vmware-cpuid-freq=on,+ssse3,+sse4.2,+popcnt,+avx,+aes,+xsave,+xsaveopt,check
+                  -machine q35
+                  -usb -device usb-kbd -device usb-tablet
+                  -smp "$CPU_THREADS",cores="$CPU_CORES",sockets="$CPU_SOCKETS"
+                  -device usb-ehci,id=ehci
+                  -device nec-usb-xhci,id=xhci
+                  -global nec-usb-xhci.msi=off
+                  -global ICH9-LPC.acpi-pci-hotplug-with-bridge-support=off
+                  -device isa-applesmc,osk="ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"
+                  -drive if=pflash,format=raw,readonly=on,file="$IMAGES_PATH/OVMF_CODE.fd"
+                  -drive if=pflash,format=raw,file="$IMAGES_PATH/OVMF_VARS-1920x1080.fd"
+                  -smbios type=2
+                  -device ich9-ahci,id=sata
+                  -drive id=OpenCoreBoot,if=none,snapshot=on,format=qcow2,file="$IMAGES_PATH/OpenCore.qcow2"
+                  -device ide-hd,bus=sata.2,drive=OpenCoreBoot
+                  -drive id=MacHDD,if=none,snapshot=on,file="$IMAGES_PATH/mac_hdd_ng.img",format=qcow2
+                  -device ide-hd,bus=sata.3,drive=MacHDD
+                  -netdev user,id=net0,hostfwd=tcp::2222-:22 -device vmxnet3,netdev=net0,id=net0,mac=52:54:00:c9:18:27
+                  -device vmware-svga
+                  -display none
+                )
+                ${pkgs.qemu}/bin/qemu-system-x86_64 "''${args[@]}" &
+                while ! ssh -q -p 2222 -o ConnectTimeout=1 garnix@127.0.0.1 true; do
+                  echo -n "."
+                  sleep 1
+                done
+                echo "VM booted"
+              '';
+            in
+            {
+              type = "app";
+              program = "${bootVMScript}/bin/boot-vm";
+            };
+          bootLinuxVm = {
             type = "app";
             program =
               let
@@ -100,7 +148,7 @@
                 cloudcfg = {
                   ssh_pwauth = true;
                   users = [{
-                    name = "test";
+                    name = "garnix";
                     plain_text_passwd = "test";
                     lock_passwd = false;
                     sudo = "ALL=(ALL) ALL";
@@ -152,7 +200,7 @@
                 -o "UserKnownHostsFile=/dev/null" \
                 localhost \
                 -p 2222 \
-                -l test \
+                -l garnix \
                 "$@"
             '');
           };
