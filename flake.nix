@@ -83,10 +83,13 @@
           testFileServer = {
             type = "app";
             program =
-              builtins.toString (pkgs.writeScript "test-file-server" ''
-                cd ${packages.exampleInstallerFiles}
-                exec ${pkgs.python3}/bin/python3 -m http.server 2> /dev/null
-              '');
+              pkgs.lib.getExe (pkgs.writeShellApplication {
+                name = "test-file-server";
+                text = ''
+                  cd ${packages.exampleInstallerFiles}
+                  exec ${pkgs.python3}/bin/python3 -m http.server 2> /dev/null
+                '';
+              });
           };
           bootVm = {
             type = "app";
@@ -119,42 +122,49 @@
                     text = "#cloud-config\n" + builtins.toJSON cloudcfg;
                   }}";
               in
-              builtins.toString (pkgs.writeScript "boot-vm" ''
-                set -eux
+              pkgs.lib.getExe (pkgs.writeShellApplication {
+                name = "boot-vm";
+                text = ''
+                  set -eux
 
-                ROOT_IMG=$(mktemp)
-                CLOUD_INIT_IMG=$(mktemp)
-                ${pkgs.qemu}/bin/qemu-img create -o backing_file=${ubuntu},backing_fmt=qcow2 -f qcow2 $ROOT_IMG 3G
-                cp ${cloud-init-img} $CLOUD_INIT_IMG
-                chmod +w $CLOUD_INIT_IMG
-                ${pkgs.qemu}/bin/qemu-system-x86_64 \
-                  -m 1G \
-                  -enable-kvm \
-                  -machine q35 \
-                  -device intel-iommu \
-                  -drive file=$ROOT_IMG,format=qcow2 \
-                  -drive file=$CLOUD_INIT_IMG,format=raw \
-                  -nographic \
-                  -device e1000,netdev=net0 \
-                  -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-                  &
-                # Wait for the runcmd to call us back to let us know that we are fully booted.
-                # (See runcmd in the flake file under cloudcfg)
-                nc -vl 2223
-              '');
+                  ROOT_IMG=$(mktemp)
+                  CLOUD_INIT_IMG=$(mktemp)
+                  ${pkgs.qemu}/bin/qemu-img create -o backing_file=${ubuntu},backing_fmt=qcow2 -f qcow2 "$ROOT_IMG" 3G
+                  cp ${cloud-init-img} "$CLOUD_INIT_IMG"
+                  chmod +w "$CLOUD_INIT_IMG"
+                  ${pkgs.qemu}/bin/qemu-system-x86_64 \
+                    -m 1G \
+                    -enable-kvm \
+                    -machine q35 \
+                    -device intel-iommu \
+                    -drive file="$ROOT_IMG,format=qcow2" \
+                    -drive file="$CLOUD_INIT_IMG,format=raw" \
+                    -nographic \
+                    -device e1000,netdev=net0 \
+                    -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+                    &
+                  # Wait for the runcmd to call us back to let us know that we are fully booted.
+                  # (See runcmd in the flake file under cloudcfg)
+                  nc -vl 2223
+                '';
+              });
           };
           sshVm = {
             type = "app";
-            program = builtins.toString (pkgs.writeScript "ssh-vm" ''
-              ${pkgs.sshpass}/bin/sshpass -p test ssh \
-                -t \
-                -o "StrictHostKeyChecking no" \
-                -o "UserKnownHostsFile=/dev/null" \
-                localhost \
-                -p 2222 \
-                -l test \
-                "$@"
-            '');
+            program =
+              pkgs.lib.getExe (pkgs.writeShellApplication {
+                name = "ssh-vm";
+                text = ''
+                  ${pkgs.sshpass}/bin/sshpass -p test ssh \
+                    -t \
+                    -o "StrictHostKeyChecking no" \
+                    -o "UserKnownHostsFile=/dev/null" \
+                    localhost \
+                    -p 2222 \
+                    -l test \
+                    "$@"
+                '';
+              });
           };
         };
         checks = {
