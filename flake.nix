@@ -96,8 +96,8 @@
             program =
               let
                 ubuntu = pkgs.fetchurl {
-                  url = "https://cloud-images.ubuntu.com/jammy/20231027/jammy-server-cloudimg-amd64.img";
-                  hash = "sha256-a7Ukf4eRm4A8IRr9GvdLMJa+boNNrCnPrHEdrXLq/qg=";
+                  url = "https://cloud-images.ubuntu.com/releases/jammy/release-20231211/ubuntu-22.04-server-cloudimg-amd64.img";
+                  hash = "sha256-bWrxfyjIldh+KQknJTcDh8Xhnv5X5YuW3FdP7tQkX4k=";
                 };
                 # See https://cloudinit.readthedocs.io/en/latest/reference/index.html
                 cloudcfg = {
